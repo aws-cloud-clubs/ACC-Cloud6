@@ -1,3 +1,3 @@
 spring:
   application:
-    name: "match"
+    name: match
