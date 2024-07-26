@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: "match"
+  datasource:
+    url: # TODO: JDBC URL for MySQL for dev
+    username: # TODO: MySQL username for dev
+    password: # TODO: MySQL password for dev
+  jpa:
+    hibernate:
+      ddl-auto: "create-drop"
