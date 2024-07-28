@@ -11,6 +11,10 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +29,9 @@ public class MatchHandler extends TextWebSocketHandler {
 
     @Value("${cloud6.match.size}")
     private int matchSize;
+
+    @Value("${cloud6.jwt.secret}")
+    private String secret;
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
@@ -45,6 +52,7 @@ public class MatchHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        // TODO: implement ticket publish protocol
         try {
             Map<String, String> query = parseQuery(session.getUri().getQuery());
             validateQuery(query);
@@ -67,12 +75,21 @@ public class MatchHandler extends TextWebSocketHandler {
             log.info("waiting for {} queue to fill...", queueId);
             matchQueueService.subscribeMatchResult((result) -> {
                 if (result.getUserId().equals(userId)) {
-                    // TODO: publish JWT ticket
-                    log.info("publish ticket for user_id {}", userId);
                     try {
+                        Algorithm algorithm = Algorithm.HMAC256(secret);
+                        String token = JWT.create()
+                            .withClaim("user_id", userId)
+                            .withClaim("nickname", nickname)
+                            .withClaim("room_id", result.getRoomId())
+                            .sign(algorithm);
                         session.getAttributes().put("matched", true);
-                        session.sendMessage(new TextMessage(result.toString()));
+                        session.sendMessage(new TextMessage(token));
                         session.close();
+
+                        log.info("publish ticket for user_id {}", userId);
+                    } catch (JWTCreationException e) {
+                        log.error(e.getMessage());
+                        e.printStackTrace();
                     } catch (IOException e) {
                         log.error(e.getMessage());
                         e.printStackTrace();

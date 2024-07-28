@@ -20,3 +20,5 @@ cloud6:
     id: 1
   match:
     size: 3
+  jwt:
+    secret: 1234
