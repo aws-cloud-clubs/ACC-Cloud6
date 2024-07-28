@@ -3,6 +3,8 @@ package com.cloud6.match;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisMatchQueueService implements MatchQueueService {
 
     private final StringRedisTemplate template;
+    private final RedisConnectionFactory connectionFactory;
 
     @Override
     public void enqueueMatchEntry(String queueId, MatchEntry entry) {
@@ -80,6 +83,36 @@ public class RedisMatchQueueService implements MatchQueueService {
     public String getNewUserId() {
         return String.valueOf(template.opsForValue().increment("user:seq"));
     }
+
+    @Override
+    public void subscribeMatchResult(MatchResultListener listener, String subscribeId, String queueId) {
+        RedisConnection connection = connectionFactory.getConnection();
+        String channelId = getChannelId(subscribeId, queueId);
+
+        connection.subscribe((message, pattern) -> {
+            MatchResult result = MatchResult.of(message.toString());
+            listener.onMatchResult(result);
+        }, channelId.getBytes());
+
+    }
+
+    @Override
+    public void publishMatchResult(List<MatchEntry> entries, String roomId, String queueId) {
+        RedisConnection connection = connectionFactory.getConnection();
+
+        // TODO: apply transaction
+        for (MatchEntry entry : entries) {
+            MatchResult result = MatchResult.builder()
+            .roomId(roomId)
+            .userId(entry.getUserId())
+            .nickname(entry.getNickname())
+            .build();
+            connection.publish(
+                getChannelId(entry.getPublisherId(), queueId).getBytes(), 
+                result.toString().getBytes()
+            );
+        }
+    }
     
     private String getWaitingQueueId(String queueId) {
         return "waiting:" + queueId;
@@ -87,6 +120,10 @@ public class RedisMatchQueueService implements MatchQueueService {
 
     private String getCanceledQueueId(String queueId) {
         return "canceled:" + queueId;
+    }
+
+    private String getChannelId(String subscribeId, String queueId) {
+        return "ch:" + subscribeId + ":" + queueId;
     }
 }
 

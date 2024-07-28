@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -21,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MatchHandler extends TextWebSocketHandler {
 
     private final MatchQueueService matchQueueService;
-    private final RedisConnectionFactory connectionFactory;
 
     @Value("${cloud6.subscribe.id}")
     private String subscribeId;
@@ -55,10 +52,8 @@ public class MatchHandler extends TextWebSocketHandler {
             String queueId = query.get("video_id");
             String nickname = query.get("nickname");
             String userId = matchQueueService.getNewUserId();
-            String channelId = getChannelId(subscribeId, queueId);
 
             session.getAttributes().put("user_id", userId);
-            RedisConnection connection = connectionFactory.getConnection();
 
             matchQueueService.enqueueMatchEntry(
                 queueId,
@@ -67,11 +62,10 @@ public class MatchHandler extends TextWebSocketHandler {
 
             long waitingSize = matchQueueService.waitingSize(queueId);
 
-            log.info("waiting for {} : {}", queueId, waitingSize);
+            log.info("waiting for queue_id {} : {}", queueId, waitingSize);
 
             log.info("waiting for {} queue to fill...", queueId);
-            connection.subscribe((message, pattern) -> {
-                MatchResult result = MatchResult.of(message.toString());
+            matchQueueService.subscribeMatchResult((result) -> {
                 if (result.getUserId().equals(userId)) {
                     // TODO: publish JWT ticket
                     log.info("publish ticket for user_id {}", userId);
@@ -84,7 +78,7 @@ public class MatchHandler extends TextWebSocketHandler {
                         e.printStackTrace();
                     }
                 }
-            }, channelId.getBytes());
+            }, subscribeId, queueId);
 
             if (waitingSize >= matchSize) {
                 log.info("more than {} people is waiting. try matching...", matchSize);
@@ -92,18 +86,7 @@ public class MatchHandler extends TextWebSocketHandler {
                 log.info("successfully matched: {}", entries);
 
                 String roomId = matchQueueService.getNewRoomId();
-                // TODO: apply transaction
-                for (MatchEntry entry : entries) {
-                    MatchResult result = MatchResult.builder()
-                        .roomId(roomId)
-                        .userId(entry.getUserId())
-                        .nickname(entry.getNickname())
-                        .build();
-                    connection.publish(
-                        getChannelId(entry.getPublisherId(), queueId).getBytes(), 
-                        result.toString().getBytes()
-                    );
-                }
+                matchQueueService.publishMatchResult(entries, roomId, queueId);
             } 
 
         } catch (Exception e) {
@@ -142,8 +125,5 @@ public class MatchHandler extends TextWebSocketHandler {
         }
     }
 
-    private String getChannelId(String subscribeId, String queueId) {
-        return "ch:" + subscribeId + ":" + queueId;
-    }
 }
 
