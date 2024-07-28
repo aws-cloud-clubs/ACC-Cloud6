@@ -15,3 +15,8 @@ spring:
       database: 0
       username: 
       password: 
+cloud6:
+  subscribe:
+    id: 1
+  match:
+    size: 3
