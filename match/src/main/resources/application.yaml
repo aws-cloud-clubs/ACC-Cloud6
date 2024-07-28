@@ -20,5 +20,7 @@ cloud6:
     id: 1
   match:
     size: 3
+    timeout: 30
+    interval: 1
   jwt:
     secret: 1234

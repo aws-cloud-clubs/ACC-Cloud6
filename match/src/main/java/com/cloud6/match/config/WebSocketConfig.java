@@ -9,6 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 import com.cloud6.match.MatchHandler;
 import com.cloud6.match.MatchQueueService;
+import com.cloud6.match.TokenPublishProtocolService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final MatchQueueService matchQueueService;
+    private final TokenPublishProtocolService tokenPublishProtocolService;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -26,7 +28,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Bean
     public WebSocketHandler matchHandler() {
-        return new MatchHandler(matchQueueService);
+        return new MatchHandler(matchQueueService, tokenPublishProtocolService);
     }
 }
 
