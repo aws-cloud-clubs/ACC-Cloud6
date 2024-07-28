@@ -40,7 +40,7 @@ public class RedisMatchQueueService implements MatchQueueService {
         try {
             while (result.size() < size) {
                 String waiting = template.opsForList().rightPop(waitingQueueId);
-                log.info("deque: {}", waiting);
+                log.info("dequeue: {}", waiting);
                 if (template.opsForList().size(canceledQueueId) > 0) {
                     if (template.opsForList().index(canceledQueueId, -1).equals(waiting)) {
                         template.opsForList().rightPop(canceledQueueId);
@@ -100,7 +100,6 @@ public class RedisMatchQueueService implements MatchQueueService {
     public void publishMatchResult(List<MatchEntry> entries, String roomId, String queueId) {
         RedisConnection connection = connectionFactory.getConnection();
 
-        // TODO: apply transaction
         for (MatchEntry entry : entries) {
             MatchResult result = MatchResult.builder()
             .roomId(roomId)
