@@ -26,7 +26,7 @@ public class RedisMatchQueueService implements MatchQueueService {
 
     @Override
     public void cancelMatchEntry(String queueId, MatchEntry entry) {
-        template.opsForList().leftPush(getCanceledQueueId(queueId), entry.toString());
+        template.opsForSet().add(getCanceledQueueId(queueId), entry.toString());
     }
 
     @Override
@@ -41,13 +41,10 @@ public class RedisMatchQueueService implements MatchQueueService {
             while (result.size() < size) {
                 String waiting = template.opsForList().rightPop(waitingQueueId);
                 log.info("dequeue: {}", waiting);
-                if (template.opsForList().size(canceledQueueId) > 0) {
-                    if (template.opsForList().index(canceledQueueId, -1).equals(waiting)) {
-                        template.opsForList().rightPop(canceledQueueId);
-                        log.info("skip: {}", waiting);
-
-                        continue;
-                    }
+                if (template.opsForSet().isMember(canceledQueueId, waiting)) {
+                    log.info("canceled: {}", waiting);
+                    template.opsForSet().remove(canceledQueueId, waiting);
+                    continue;
                 }
                 result.add(MatchEntry.of(waiting));
             }
@@ -71,7 +68,7 @@ public class RedisMatchQueueService implements MatchQueueService {
 
     @Override
     public long canceledQueueSize(String queueId) {
-        return template.opsForList().size(getCanceledQueueId(queueId));
+        return template.opsForSet().size(getCanceledQueueId(queueId));
     }
 
     @Override
