@@ -58,6 +58,7 @@ public class DefaultTokenPublishProtocolService implements TokenPublishProtocolS
 
         try {
             long waitingCount = matchQueueService.waitingSize(queueId);
+            session.sendMessage(new TextMessage("WAITING"));
             session.sendMessage(new TextMessage(String.valueOf(waitingCount)));
             return true;
         } catch (IOException e) {
