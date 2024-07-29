@@ -21,9 +21,6 @@ public class MatchHandler extends TextWebSocketHandler {
     private final MatchQueueService matchQueueService;
     private final TokenPublishProtocolService tokenPublishProtocolService;
 
-    @Value("${cloud6.subscribe.id}")
-    private String subscribeId;
-
     @Value("${cloud6.match.size}")
     private int matchSize;
     
@@ -46,7 +43,7 @@ public class MatchHandler extends TextWebSocketHandler {
 
         matchQueueService.cancelMatchEntry(
             queueId,
-            new MatchEntry(subscribeId, userId, nickname)
+            new MatchEntry(userId, nickname)
         );
     }
 
@@ -64,7 +61,7 @@ public class MatchHandler extends TextWebSocketHandler {
 
             matchQueueService.enqueueMatchEntry(
                 queueId,
-                new MatchEntry(subscribeId, userId, nickname)
+                new MatchEntry(userId, nickname)
             );
 
             long waitingSize = matchQueueService.waitingSize(queueId);
@@ -75,7 +72,7 @@ public class MatchHandler extends TextWebSocketHandler {
                 if (result.getUserId().equals(userId)) {
                     tokenPublishProtocolService.publishToken(session, result);
                 }
-            }, subscribeId, queueId);
+            }, queueId);
 
             if (waitingSize >= matchSize) {
                 log.info("more than {} people is waiting. try matching...", matchSize);

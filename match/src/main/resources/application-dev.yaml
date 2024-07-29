@@ -2,9 +2,23 @@ spring:
   application:
     name: match
   datasource:
-    url: # TODO: JDBC URL for MySQL for dev
-    username: # TODO: MySQL username for dev
-    password: # TODO: MySQL password for dev
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: create-drop
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      database: ${REDIS_DATABASE}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+cloud6:
+  match:
+    size: ${MATCH_SIZE}
+    timeout: ${MATCH_TIMEOUT} 
+    interval: ${MATCH_INTERVAL}
+  jwt:
+    secret: ${JWT_SECRET}

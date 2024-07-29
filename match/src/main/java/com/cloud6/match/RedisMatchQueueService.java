@@ -82,9 +82,9 @@ public class RedisMatchQueueService implements MatchQueueService {
     }
 
     @Override
-    public void subscribeMatchResult(MatchResultListener listener, String subscribeId, String queueId) {
+    public void subscribeMatchResult(MatchResultListener listener, String queueId) {
         RedisConnection connection = connectionFactory.getConnection();
-        String channelId = getChannelId(subscribeId, queueId);
+        String channelId = getChannelId(queueId);
 
         connection.subscribe((message, pattern) -> {
             MatchResult result = MatchResult.of(message.toString());
@@ -104,7 +104,7 @@ public class RedisMatchQueueService implements MatchQueueService {
             .nickname(entry.getNickname())
             .build();
             connection.publish(
-                getChannelId(entry.getPublisherId(), queueId).getBytes(), 
+                getChannelId(queueId).getBytes(), 
                 result.toString().getBytes()
             );
         }
@@ -118,8 +118,8 @@ public class RedisMatchQueueService implements MatchQueueService {
         return "canceled:" + queueId;
     }
 
-    private String getChannelId(String subscribeId, String queueId) {
-        return "ch:" + subscribeId + ":" + queueId;
+    private String getChannelId(String queueId) {
+        return "ch:" + queueId;
     }
 }
 

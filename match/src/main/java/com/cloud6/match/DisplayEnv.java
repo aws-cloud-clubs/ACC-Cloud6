@@ -14,13 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Profile("dev")
 public class DisplayEnv {
-    @Value("${cloud6.subscribe.id}")
-    private String subscribeId;
+    @Value("${cloud6.match.size}")
+    private String matchSize;
 
     @PostConstruct
     private void displayEnv() {
         Map<String, String> envs = new HashMap<>();
-        envs.put("CLOUD6_SUBSCRIBE_ID", subscribeId);
+        envs.put("MATCH_SIZE", matchSize);
         // TODO: put other env variables here
 
         StringBuilder sb = new StringBuilder("\n ===== Environment Setup ===== \n");

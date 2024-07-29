@@ -16,8 +16,6 @@ spring:
       username: 
       password: 
 cloud6:
-  subscribe:
-    id: 1
   match:
     size: 3
     timeout: 30

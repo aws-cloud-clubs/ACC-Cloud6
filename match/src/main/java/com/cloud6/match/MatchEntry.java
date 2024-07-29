@@ -8,22 +8,21 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @Getter
 public class MatchEntry {
-    private final String publisherId;
     private final String userId;
     private final String nickname;
 
     @Override
     public String toString() {
-        return publisherId + ":" + userId + ":" + nickname;
+        return userId + ":" + nickname;
     }
 
     public static MatchEntry of(String src) {
         if (src == null) throw new RuntimeException("MatchEntry src is null");
 
         String[] split = src.split("\\:");
-        if (split.length != 3) throw new RuntimeException("Invalid MatchEntry src: " + src);
+        if (split.length != 2) throw new RuntimeException("Invalid MatchEntry src: " + src);
 
-        return new MatchEntry(split[0], split[1], split[2]);
+        return new MatchEntry(split[0], split[1]);
     }
 }
 

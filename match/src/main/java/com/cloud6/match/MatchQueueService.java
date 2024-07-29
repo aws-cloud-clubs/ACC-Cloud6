@@ -11,7 +11,7 @@ public interface MatchQueueService {
     long waitingSize(String queueId);
     String getNewRoomId();
     String getNewUserId();
-    void subscribeMatchResult(MatchResultListener listener, String subscribeId, String queueId);
+    void subscribeMatchResult(MatchResultListener listener, String queueId);
     void publishMatchResult(List<MatchEntry> entries, String roomId, String queueId);
 }
 
