@@ -25,11 +25,11 @@ class StompClient:
 
         except Exception as e:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="connect", response_time=total_time, exception=e)
+            # events.request.fire(request_type="STOMP", name="connect", response_time=total_time, exception=e)
         
         else:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="connect", response_time=total_time)
+            # events.request.fire(request_type="STOMP", name="connect", response_time=total_time)
 
     def subscribe(self, destination, id):
         start_time = time.time()
@@ -40,11 +40,11 @@ class StompClient:
 
         except Exception as e:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="subscribe", response_time=total_time, exception=e)
+            # events.request.fire(request_type="STOMP", name="subscribe", response_time=total_time, exception=e)
         
         else:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="subscribe", response_time=total_time)
+            # events.request.fire(request_type="STOMP", name="subscribe", response_time=total_time)
 
     def send(self, destination, message):
         start_time = time.time()
@@ -55,11 +55,11 @@ class StompClient:
 
         except Exception as e:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="send", response_time=total_time, exception=e)
+            # events.request.fire(request_type="STOMP", name="send", response_time=total_time, exception=e)
         
         else:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="send", response_time=total_time)
+            # events.request.fire(request_type="STOMP", name="send", response_time=total_time)
 
     def receive(self):
         start_time = time.time()
@@ -69,11 +69,11 @@ class StompClient:
 
         except Exception as e:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="receive", response_time=total_time, exception=e)
+            # events.request.fire(request_type="STOMP", name="receive", response_time=total_time, exception=e)
         
         else:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="receive", response_time=total_time, response_length=len(message))
+            # events.request.fire(request_type="STOMP", name="receive", response_time=total_time, response_length=len(message))
 
         return message
 
@@ -86,8 +86,8 @@ class StompClient:
 
         except Exception as e:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="disconnect", response_time=total_time, exception=e)
+            # events.request.fire(request_type="STOMP", name="disconnect", response_time=total_time, exception=e)
         
         else:
             total_time = int((time.time() - start_time) * 1000)
-            events.request.fire(request_type="STOMP", name="disconnect", response_time=total_time)
+            # events.request.fire(request_type="STOMP", name="disconnect", response_time=total_time)
