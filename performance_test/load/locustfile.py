@@ -15,13 +15,17 @@ class ChatLoadTestUser(User):
 
     vuser = 6
 
-    wait_time = between(1, 2)
+    # wait_time = between(1, 2)
+    last_wait_time = 0
+    def wait_time(self):
+        self.last_wait_time += 1
+        return self.last_wait_time
 
     def on_start(self):
         global_room_id.increment()
         self.room_id = global_room_id.value()
 
-        self.__stomp_clients = []
+        self.__stomp_clients: list[StompClient] = []
         for i in range(self.vuser):
             self.__stomp_clients.append(StompClient(self.host, self.port, self.endpoint))
             self.__stomp_clients[i].connect()
