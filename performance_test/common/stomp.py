@@ -31,11 +31,11 @@ class StompClient:
             total_time = int((time.time() - start_time) * 1000)
             events.request.fire(request_type="STOMP", name="connect", response_time=total_time)
 
-    def subscribe(self, destination):
+    def subscribe(self, destination, id):
         start_time = time.time()
 
         try:
-            self.__ws.send(stomper.subscribe(destination))
+            self.__ws.send(stomper.subscribe(destination, id))
             # self.__ws.recv()
 
         except Exception as e:
