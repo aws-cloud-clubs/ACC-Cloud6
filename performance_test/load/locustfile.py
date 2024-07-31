@@ -30,6 +30,10 @@ class ChatLoadTestUser(User):
             self.__stomp_clients.append(StompClient(self.host, self.port, self.endpoint))
             self.__stomp_clients[i].connect()
             self.__stomp_clients[i].subscribe(f"/topic/chat/{self.room_id}")
+            
+    def on_stop(self):
+        for i in range(self.vuser):
+            self.__stomp_clients[i].disconnect()
 
     @task
     def send_receive_hello(self):
