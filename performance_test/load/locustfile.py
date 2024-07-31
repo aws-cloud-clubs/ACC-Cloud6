@@ -15,11 +15,7 @@ class ChatLoadTestUser(User):
 
     vuser = 6
 
-    # wait_time = between(1, 2)
-    last_wait_time = 0
-    def wait_time(self):
-        self.last_wait_time += 1
-        return self.last_wait_time
+    wait_time = between(1, 2)
 
     def on_start(self):
         global_room_id.increment()
@@ -30,7 +26,7 @@ class ChatLoadTestUser(User):
             self.__stomp_clients.append(StompClient(self.host, self.port, self.endpoint))
             self.__stomp_clients[i].connect()
             self.__stomp_clients[i].subscribe(f"/topic/chat/{self.room_id}")
-            
+
     def on_stop(self):
         for i in range(self.vuser):
             self.__stomp_clients[i].disconnect()
