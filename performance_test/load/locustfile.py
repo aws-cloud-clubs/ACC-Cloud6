@@ -1,5 +1,5 @@
 import time
-from locust import User, task, between, events
+from locust import User, task, between
 
 from performance_test.common.stomp import StompClient
 from performance_test.utils.atomic import AtomicCounter
@@ -37,4 +37,4 @@ class ChatLoadTestUser(User):
             msg = self.__stomp_clients[i].receive()
 
         total_time = int((time.time() - start_time) * 1000)
-        events.request.fire(request_type="STOMP", name="send_receive_hello", response_time=total_time, response_length=len(msg))
+        self.environment.events.request.fire(request_type="STOMP", name="send_receive_hello", response_time=total_time, response_length=len(msg))
