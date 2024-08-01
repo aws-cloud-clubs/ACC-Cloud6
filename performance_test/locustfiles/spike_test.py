@@ -47,8 +47,7 @@ class SpikeTestTasks(TaskSet):
                 response.failure("Request took too long")
 
         total_time = int((time.time() - start_time) * 1000)
-        self.environment.events.request.fire(request_type="STOMP", name="send_hello", response_time=total_time,
-                                             response_length=len(msg))
+        self.environment.events.request.fire(request_type="STOMP", name="send_hello", response_time=total_time)
 
 
 class SpikeTestUser(HttpUser):
