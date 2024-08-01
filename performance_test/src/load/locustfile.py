@@ -1,8 +1,8 @@
 import time
 from locust import User, task, between
 
-from performance_test.common.stomp import StompClient
-from performance_test.utils.atomic import AtomicCounter
+from src.common.stomp import StompClient
+from src.utils.atomic import AtomicCounter
 
 
 global_room_id = AtomicCounter()
