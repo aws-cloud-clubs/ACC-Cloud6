@@ -1,12 +1,10 @@
 package com.cloud6.match.match;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
-@RequiredArgsConstructor
+@Data
 @Builder
-@Getter
 public class MatchResult {
     private final String roomId;
     private final String userId;

@@ -1,5 +1,7 @@
 package com.cloud6.match.match;
 
+import java.util.List;
+
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,17 @@ import lombok.RequiredArgsConstructor;
 public class RedisTestController {
 
     private final StringRedisTemplate template;
+    private final MatchQueueService matchQueueService;
+    
+    @GetMapping("/match/order")
+    public List<MatchIndexEntry> matchOrder(long startIndex, long size) {
+        return matchQueueService.getQueueIds(startIndex, size);
+    }
+
+    @GetMapping("/match/init")
+    public void initQueue() {
+        matchQueueService.initQueueIndex(List.of("1", "2", "3"));
+    }
 
     @GetMapping("/test")
     public String getTest() {

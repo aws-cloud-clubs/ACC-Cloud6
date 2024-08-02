@@ -1,11 +1,13 @@
 package com.cloud6.match.match;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class RedisMatchQueueService implements MatchQueueService {
 
     @Override
     public void cancelMatchEntry(String queueId, MatchEntry entry) {
-        String key = getWaitingQueueId(queueId);
+        String key = getCanceledQueueId(queueId);
         template.opsForSet().add(key, entry.toString());
         updateIndex(queueId);
     }
@@ -128,6 +130,13 @@ public class RedisMatchQueueService implements MatchQueueService {
             .map((tuple) -> new MatchIndexEntry(tuple.getValue(), (long)Math.floor(tuple.getScore())))
             .toList();
     }
+
+    @Override
+    public void initQueueIndex(List<String> queueIds) {
+        template.opsForZSet().add(MATCH_INDEX_ID, new HashSet<>(queueIds.stream()
+            .map(queueId -> new DefaultTypedTuple<String>(queueId, 0.0))
+            .toList()));
+    }
     
     private String getWaitingQueueId(String queueId) {
         return "waiting:" + queueId;
@@ -142,6 +151,7 @@ public class RedisMatchQueueService implements MatchQueueService {
     }
 
     private void updateIndex(String queueId) {
+        log.info("tries to update index...");
         template.opsForZSet().add(MATCH_INDEX_ID, queueId, waitingSize(queueId));
 
     }
