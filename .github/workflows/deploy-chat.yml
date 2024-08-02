@@ -89,7 +89,6 @@ jobs:
     - name: create application.properties file
       if: steps.filter.outputs.chat == 'true'
       run: |
-        mkdir chat/src/main/resources
         touch chat/src/main/resources/application-db.properties
         echo "${{ secrets.CHAT_ENV_VARS_DB }}" >> chat/src/main/resources/application-db.properties
 
