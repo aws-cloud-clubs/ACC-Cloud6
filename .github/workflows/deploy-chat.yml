@@ -92,6 +92,8 @@ jobs:
 
     - name: Build with Gradle
       run: |
+        touch chat/src/main/resources/application-db.properties
+        echo "${{ secrets.CHAT_ENV_VARS_DB }}" >> chat/src/main/resources/application-db.properties
         cd ./chat
         chmod +x ./gradlew
         ./gradlew build --warning-mode all --scan
