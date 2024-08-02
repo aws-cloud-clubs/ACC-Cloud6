@@ -20,13 +20,10 @@ public class VideoController {
     private final VideoService videoService;
 
     @GetMapping("/video")
-    public ResponseEntity<Page> getAllVideosInPage(@RequestParam Long page,
-                                                   @RequestParam Long size,
-                                                   @RequestParam Sort sort) {
-        int pageNumber = page.intValue();
-        int pageSize = size.intValue();
+    public ResponseEntity<Page> getAllVideosInPage(@RequestParam int page,
+                                                   @RequestParam int size) {
 
-        Page<VideoDto> videosInPage = videoService.getAllInPage(pageNumber, pageSize, sort);
+        Page<VideoDto> videosInPage = videoService.getAllInPage(page, size);
 
         return ResponseEntity.of(Optional.ofNullable(videosInPage));
     }

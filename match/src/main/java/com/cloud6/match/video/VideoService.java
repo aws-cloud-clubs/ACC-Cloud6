@@ -19,9 +19,9 @@ public class VideoService {
     @Autowired
     private MatchQueueService matchQueueService;
 
-    public Page<VideoDto> getAllInPage(int page, int size, Sort sort) {
+    public Page<VideoDto> getAllInPage(int page, int size) {
         List<VideoDto> dtos = new ArrayList<>();
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         /*
         * page, size에 맞는 <video_id, waiting> 받기 - service method
