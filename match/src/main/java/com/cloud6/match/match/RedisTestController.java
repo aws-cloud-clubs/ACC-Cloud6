@@ -24,7 +24,7 @@ public class RedisTestController {
 
     @GetMapping("/match/init")
     public void initQueue() {
-        matchQueueService.initQueueIndex(List.of("1", "2", "3"));
+        matchQueueService.initQueueIndex(List.of());
     }
 
     @GetMapping("/test")

@@ -16,4 +16,3 @@ public interface MatchQueueService {
     List<MatchIndexEntry> getQueueIds(long startIndex, long size);
     void initQueueIndex(List<String> queueIds);
 }
-

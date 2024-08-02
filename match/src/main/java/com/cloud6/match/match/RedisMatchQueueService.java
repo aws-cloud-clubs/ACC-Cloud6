@@ -133,6 +133,8 @@ public class RedisMatchQueueService implements MatchQueueService {
 
     @Override
     public void initQueueIndex(List<String> queueIds) {
+        if (queueIds.size() == 0) return;
+
         template.opsForZSet().add(MATCH_INDEX_ID, new HashSet<>(queueIds.stream()
             .map(queueId -> new DefaultTypedTuple<String>(queueId, 0.0))
             .toList()));
