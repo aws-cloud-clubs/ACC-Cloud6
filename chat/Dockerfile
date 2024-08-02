@@ -26,6 +26,6 @@ RUN echo Asia/Seoul > /etc/timezone
 WORKDIR /project
 
 ARG JAR_FILE=project/build/libs/*.jar
-COPY --from=source ${JAR_FILE} app.jar
+COPY --from=build ${JAR_FILE} app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
