@@ -1,4 +1,4 @@
-package com.cloud6.match;
+package com.cloud6.match.match;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

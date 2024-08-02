@@ -1,4 +1,4 @@
-package com.cloud6.match.config;
+package com.cloud6.match.match.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

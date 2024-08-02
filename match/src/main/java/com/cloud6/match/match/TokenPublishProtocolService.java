@@ -1,4 +1,4 @@
-package com.cloud6.match;
+package com.cloud6.match.match;
 
 import org.springframework.web.socket.WebSocketSession;
 
