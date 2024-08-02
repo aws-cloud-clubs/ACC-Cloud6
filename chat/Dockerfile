@@ -23,10 +23,9 @@ FROM azul/zulu-openjdk-alpine:17-jre-latest AS runner
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 RUN echo Asia/Seoul > /etc/timezone
 
-VOLUME /tmp
 WORKDIR /project
 
 ARG JAR_FILE=project/build/libs/*.jar
-COPY ${JAR_FILE} app.jar
+COPY --from=source ${JAR_FILE} app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
