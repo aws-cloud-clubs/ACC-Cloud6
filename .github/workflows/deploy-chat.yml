@@ -91,7 +91,7 @@ jobs:
       uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./chat/gradlew build
 
     - name: Configure AWS credentials
       if: steps.filter.outputs.chat == 'true'
