@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.2'
-	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.springframework.boot' version '2.5.4'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 group = 'com.cloud6'
@@ -21,6 +21,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven {url 'https://jitpack.io'}
 }
 
 dependencies {
@@ -28,6 +29,18 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'software.amazon.awssdk:dynamodb:2.26.18'
+//	implementation 'org.socialsignin.spring.data:dynamodb-spring-data-repository:5.2.4'
+	implementation 'io.github.boostchicken:spring-data-dynamodb:5.2.5'
+	implementation 'org.webjars:sockjs-client:1.5.1'
+	implementation 'org.webjars:webjars-locator-core'
+	implementation 'org.webjars:stomp-websocket:2.3.3'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
+	implementation 'com.fasterxml.jackson.core:jackson-core:2.13.4'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.4'
+	implementation platform('software.amazon.awssdk:bom:2.20.85')
+	implementation 'software.amazon.awssdk:dynamodb-enhanced'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
