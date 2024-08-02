@@ -94,7 +94,7 @@ jobs:
       run: |
         cd ./chat
         chmod +x ./gradlew
-        ./gradlew build
+        ./gradlew build --warning-mode all --scan
 
     - name: Configure AWS credentials
       if: steps.filter.outputs.chat == 'true'
