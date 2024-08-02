@@ -18,7 +18,7 @@ public class ChatRoomRepository {
     private final DynamoDbTable<ChatRoom> chatRoomTable;
 
     public ChatRoomRepository(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
-        this.chatRoomTable = dynamoDbEnhancedClient.table("DYNAMO_DB_SAMPLE",
+        this.chatRoomTable = dynamoDbEnhancedClient.table("ChatRoom",
                 TableSchema.fromBean(ChatRoom.class));
     }
 

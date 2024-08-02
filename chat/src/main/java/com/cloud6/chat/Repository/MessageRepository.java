@@ -14,7 +14,7 @@ public class MessageRepository {
     private final DynamoDbTable<Message> messageTable;
 
     public MessageRepository(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
-        this.messageTable = dynamoDbEnhancedClient.table("DYNAMO_DB_SAMPLE",
+        this.messageTable = dynamoDbEnhancedClient.table("Message",
                 TableSchema.fromBean(Message.class));
     }
     public Message save(Message message) {
