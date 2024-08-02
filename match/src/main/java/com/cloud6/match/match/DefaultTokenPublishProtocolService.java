@@ -7,9 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +28,10 @@ public class DefaultTokenPublishProtocolService implements TokenPublishProtocolS
         if (!session.isOpen()) return false;
 
         try {
-            Algorithm algorithm = Algorithm.HMAC256(secret);
-            String token = JWT.create()
-                .withClaim("room_id", result.getRoomId())
-                .withClaim("user_id", result.getUserId())
-                .withClaim("nickname", result.getNickname())
-                .sign(algorithm);
             session.getAttributes().put("matched", true);
             session.sendMessage(new TextMessage("SUCCESS"));
-            session.sendMessage(new TextMessage(token));
+            ObjectMapper objectMapper = new ObjectMapper();
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(result)));
             session.close();
 
             return true;
