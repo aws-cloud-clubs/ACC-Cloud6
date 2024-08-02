@@ -38,9 +38,9 @@ public class DynamoDbConfig {
     @Value("${aws.secretAccessKey}")
     private String secretAccessKey;
 
-    // 로컬 테스트 용
-    @Value("${aws.endpoint}")
-    private String endpoint;
+    // // 로컬 테스트 용
+    // @Value("${aws.endpoint}")
+    // private String endpoint;
 
     public AWSCredentialsProvider amazonAWSCredentialsProvider() {
         return new AWSStaticCredentialsProvider(amazonAWSCredentials());
