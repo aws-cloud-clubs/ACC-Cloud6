@@ -44,46 +44,73 @@ permissions:
   contents: read
 
 jobs:
-  compute-diff:
-    name: Compute Differences
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  # compute-diff:
+  #   name: Compute Differences
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Compute Differences
-        uses: dorny/paths-filter@v2
-        id: compute_diff
-        with:
-          filters: |
-            files:
-              - 'match/**'
-    outputs:
-      files: ${{ steps.compute-diff.outputs.files }}
+  #     - name: Compute Differences
+  #       uses: dorny/paths-filter@v2
+  #       id: compute_diff
+  #       with:
+  #         filters: |
+  #           files:
+  #             - 'match/**'
+  #   outputs:
+  #     files: ${{ steps.compute-diff.outputs.files }}
     
   deploy:
-    name: Deploy
     runs-on: ubuntu-latest
-    needs: [compute-diff]
-    if: ${{ needs.compute-diff.outputs.files == 'true' }}
     environment: production
 
-    steps:
+    steps:    
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Compute Diff
+      uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          match:
+            - 'match/**'
+            - '.github/workflows/**'
+            
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+    # - name: Setup Gradle
+    #   uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
+
+    - name: Build with Gradle
+      run: |
+        cd ./match
+        chmod +x ./gradlew
+        ./gradlew build --warning-mode all --scan
+
+
     - name: Configure AWS credentials
+      if: steps.filter.outputs.match == 'true'
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
-
+        
     - name: Login to Amazon ECR
+      if: steps.filter.outputs.match == 'true'
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build, tag, and push image to Amazon ECR
+      if: steps.filter.outputs.match == 'true'
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -97,6 +124,7 @@ jobs:
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
     - name: Fill in the new image ID in the Amazon ECS task definition
+      if: steps.filter.outputs.match == 'true'
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
@@ -105,6 +133,7 @@ jobs:
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
+      if: steps.filter.outputs.match == 'true'
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
