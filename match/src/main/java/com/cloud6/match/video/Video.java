@@ -7,10 +7,10 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "video")
+@Table(name = "youtube")
 public class Video {
     @Id
-    private String id;
+    private Long id;
     private String title;
     private String video_url;
     private String thumbnail_url;

@@ -7,8 +7,9 @@ import lombok.ToString;
 
 @ToString
 @AllArgsConstructor
+@Data
 public class VideoDto {
-    private String id;
+    private Long id;
     private String title;
     private String video_url;
     private String thumbnail_url;

@@ -30,7 +30,7 @@ public class VideoService {
         * */
         List<MatchIndexEntry> redisEntries = matchQueueService.getQueueIds(page, size);
         for (MatchIndexEntry redisEntry : redisEntries) {
-            Optional<Video> opVideo = videoRepository.findById(redisEntry.getVideo_id());
+            Optional<Video> opVideo = videoRepository.findById(Long.parseLong(redisEntry.getVideo_id()));
             Video video = opVideo.orElseThrow();
             VideoDto dto = video.toDtoAddWaiting(redisEntry.getWaiting());
             dtos.add(dto);
