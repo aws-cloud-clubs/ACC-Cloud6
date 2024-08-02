@@ -92,8 +92,9 @@ jobs:
 
     - name: Build with Gradle
       run: |
-        chmod +x ./chat/gradlew
-        ./chat/gradlew build
+        cd ./chat
+        chmod +x ./gradlew
+        ./gradlew build
 
     - name: Configure AWS credentials
       if: steps.filter.outputs.chat == 'true'
