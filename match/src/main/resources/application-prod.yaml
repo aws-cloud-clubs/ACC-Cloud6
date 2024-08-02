@@ -7,7 +7,7 @@ spring:
     password: ${DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   data:
     redis:
       host: ${REDIS_HOST}
