@@ -95,7 +95,8 @@ jobs:
         echo "${{ secrets.MATCH_ENV_VARS }}" >> match/src/main/resources/prod.env
         cd ./match
         chmod +x ./gradlew
-        ./gradlew build --warning-mode all --scan
+        ./gradlew build --warning-mode all --scan -Pprofile=prod
+
 
 
     - name: Configure AWS credentials
