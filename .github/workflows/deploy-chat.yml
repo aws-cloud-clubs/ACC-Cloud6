@@ -44,35 +44,42 @@ permissions:
   contents: read
 
 jobs:
-  compute-diff:
-    name: Compute Differences
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  # compute-diff:
+  #   name: Compute Differences
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Compute Differences
-        uses: dorny/paths-filter@v3
-        id: compute_diff
-        with:
-          filters: |
-            src:
-              - 'chat/**'
+  #     - name: Compute Differences
+  #       uses: dorny/paths-filter@v3
+  #       id: compute_diff
+  #       with:
+  #         filters: |
+  #           src:
+  #             - 'chat/**'
     # outputs:
     #   files: ${{ steps.compute-diff.outputs.src }}
     
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: [compute-diff]
-    if: ${{ needs.compute-diff.outputs.src == 'true' }}
     environment: production
 
-    steps:
+    steps:    
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Compute Diff
+      uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          chat:
+            - 'chat/**'
+
     - name: Configure AWS credentials
+      if: steps.filter.outputs.chat == 'true'
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -80,16 +87,19 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
         
     - name: create application.properties file
+      if: steps.filter.outputs.chat == 'true'
       run: |
         mkdir chat/src/main/resources
         touch chat/src/main/resources/application-db.properties
         echo "${{ secrets.CHAT_ENV_VARS_DB }}" >> chat/src/main/resources/application-db.properties
 
     - name: Login to Amazon ECR
+      if: steps.filter.outputs.chat == 'true'
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build, tag, and push image to Amazon ECR
+      if: steps.filter.outputs.chat == 'true'
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -103,6 +113,7 @@ jobs:
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
     - name: Fill in the new image ID in the Amazon ECS task definition
+      if: steps.filter.outputs.chat == 'true'
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
@@ -111,6 +122,7 @@ jobs:
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
+      if: steps.filter.outputs.chat == 'true'
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
