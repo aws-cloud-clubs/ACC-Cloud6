@@ -11,8 +11,6 @@ import org.springframework.web.socket.config.annotation.*;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final ChatHandler chatHandler;
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry messageBrokerRegistry) {
         messageBrokerRegistry.enableSimpleBroker("/topic");  // 구독
@@ -24,10 +22,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*")
                 .withSockJS();  // sockJS 관련된 의존성 필요하면 추가할 것
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*");
-    }
-
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(chatHandler);
     }
 }

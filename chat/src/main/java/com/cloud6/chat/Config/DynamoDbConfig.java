@@ -51,14 +51,14 @@ public class DynamoDbConfig {
         return new BasicAWSCredentials(accessKeyId, secretAccessKey);
     }
 
-    @Primary
-    // @Bean(name = "primaryDynamoDBMapperConfig")
+    //@Primary
+    @Bean   //(name = "primaryDynamoDBMapperConfig")
     public DynamoDBMapperConfig dynamoDBMapperConfig() {
         return DynamoDBMapperConfig.DEFAULT;
     }
 
-    @Primary
-    // @Bean(name = "primaryDynamoDBMapper")
+    // @Primary
+    @Bean   // (name = "primaryDynamoDBMapper")
     public DynamoDBMapper dynamoDBMapper(AmazonDynamoDB amazonDynamoDB,
                                          DynamoDBMapperConfig dynamoDBMapperConfig) {  // @Qualifier("primaryDynamoDBMapperConfig")
         return new DynamoDBMapper(amazonDynamoDB, dynamoDBMapperConfig);
@@ -67,16 +67,16 @@ public class DynamoDbConfig {
     @Bean
     public AmazonDynamoDB amazonDynamoDB() {
         return AmazonDynamoDBClientBuilder.standard()
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("https://localhost:8000", "ap-northeast-2"))
+                // .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "ap-northeast-2"))
                 .withCredentials(amazonAWSCredentialsProvider())
-                // .withRegion(Regions.AP_NORTHEAST_2)
+                .withRegion(Regions.AP_NORTHEAST_2)
                 .build();
     }
 
     @Bean
     public DynamoDbClient dynamoDbClient(){
         return DynamoDbClient.builder()
-                .endpointOverride(URI.create("https://localhost:8000"))
+                // .endpointOverride(URI.create("http://localhost:8000"))
                 .region(Region.AP_NORTHEAST_2)
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey))).build();
     }

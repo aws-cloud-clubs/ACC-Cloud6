@@ -79,8 +79,8 @@
 <!-- Include your custom JavaScript -->
 <script>
     let roomId = [[${roomId}]];  // 서버에서 전달된 room_id 사용
-    const token = localStorage.getItem('token');
     const name = localStorage.getItem('name');
+    const memberId = localStorage.getItem('memberId');   // 이게 맞을까.......???????????
     let stompClient = null;
 
     // 웹 소켓 연결
@@ -88,7 +88,6 @@
         const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
 
-        let headers = {Authorization: 'Bearer ' + token}; // Added space after Bearer
         stompClient.connect(headers, function (frame) {
             console.log('Connected: ' + frame);
             onConnected(); // 콜백함수
@@ -121,19 +120,20 @@
         const message = $("#message").val(); // Fixed jQuery selector
         const chatMessage = {
             roomId: roomId,
+            memberId: memberId,
             type: "MESSAGE",
             createdBy: name,
-            text: message,
+            comment: message,
             createdAt: new Date().toISOString()
         };
-        stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
+        stompClient.send("/app/chat/"+roomId, { }, JSON.stringify(chatMessage));  // token: token
         $("#message").val(""); // Clear message input
     }
 
     function showMessage(message) {
         let messageElement = document.createElement('div');
         messageElement.className = 'chat-message';
-        messageElement.textContent = `${message.createdBy}: ${message.text}`;
+        messageElement.textContent = `${message.createdBy}: ${message.comment}`;
         document.getElementById('chatting').appendChild(messageElement);
         scrollChatToBottom();
     }

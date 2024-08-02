@@ -15,6 +15,7 @@ public class Message {
 
     private String messageId;
     private String createdAt;
+    private String memberId;
     private String comment;
     private String type;
     private String createdBy;
@@ -31,6 +32,11 @@ public class Message {
     @DynamoDbAttribute("createdAt")
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    @DynamoDbAttribute("memberId")
+    public String getMemberId() {
+        return memberId;
     }
 
     @DynamoDbAttribute("comment")
