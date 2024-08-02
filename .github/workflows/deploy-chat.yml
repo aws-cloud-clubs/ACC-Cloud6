@@ -52,20 +52,20 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Compute Differences
-        uses: dorny/paths-filter@v2
+        uses: dorny/paths-filter@v3
         id: compute_diff
         with:
           filters: |
-            files:
+            src:
               - 'chat/**'
-    outputs:
-      files: ${{ steps.compute-diff.outputs.files }}
+    # outputs:
+    #   files: ${{ steps.compute-diff.outputs.src }}
     
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     needs: [compute-diff]
-    if: ${{ needs.compute-diff.outputs.files == 'true' }}
+    if: ${{ needs.compute-diff.outputs.src == 'true' }}
     environment: production
 
     steps:
