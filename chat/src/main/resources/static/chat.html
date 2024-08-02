@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include SockJS and STOMP libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        /* Basic styling for the chat interface */
+        #chat-container {
+            width: 100%;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ccc;
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        #chatting {
+            flex: 1;
+            overflow-y: auto; /* Changed to auto to handle scroll */
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+        }
+        #chat-form {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        #message {
+            flex: 1;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd; /* Added border for better visibility */
+        }
+        #send {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        #send:hover {
+            background-color: #0056b3; /* Added hover effect */
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3; /* Added hover effect */
+        }
+    </style>
+</head>
+<body>
+<div id="chat-container">
+    <div id="chatting">
+        <!-- Chat messages will appear here -->
+    </div>
+    <form id="chat-form">
+        <input type="text" id="message" placeholder="Type a message" required>
+        <button type="submit" id="send">Send</button>
+    </form>
+</div>
+<button id="connect">Connect</button>
+<button id="disconnect">Disconnect</button>
+
+<!-- Include your custom JavaScript -->
+<script>
+    let roomId = [[${roomId}]];  // 서버에서 전달된 room_id 사용
+    const name = localStorage.getItem('name');
+    const memberId = localStorage.getItem('memberId');   // 이게 맞을까.......???????????
+    let stompClient = null;
+
+    // 웹 소켓 연결
+    function connect() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect(headers, function (frame) {
+            console.log('Connected: ' + frame);
+            onConnected(); // 콜백함수
+        });
+    }
+
+    // 구독 설정
+    function onConnected() {
+        // 새로운 채팅방 생성 구독
+        stompClient.subscribe('/topic/' + roomId, function (chatMessage) {
+            console.log(JSON.parse(chatMessage.body));
+            // 메시지 보여주는 기능?
+            showMessage(JSON.parse(chatMessage.body));
+        });
+        addMemberToRoom();
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        console.log("Disconnected");
+    }
+
+    function addMemberToRoom() {
+        stompClient.send("/app/" + roomId + "/addMember", {}, JSON.stringify({}));
+    }
+
+    function sendChat() {
+        const message = $("#message").val(); // Fixed jQuery selector
+        const chatMessage = {
+            roomId: roomId,
+            memberId: memberId,
+            type: "MESSAGE",
+            createdBy: name,
+            comment: message,
+            createdAt: new Date().toISOString()
+        };
+        stompClient.send("/app/chat/"+roomId, { }, JSON.stringify(chatMessage));  // token: token
+        $("#message").val(""); // Clear message input
+    }
+
+    function showMessage(message) {
+        let messageElement = document.createElement('div');
+        messageElement.className = 'chat-message';
+        messageElement.textContent = `${message.createdBy}: ${message.comment}`;
+        document.getElementById('chatting').appendChild(messageElement);
+        scrollChatToBottom();
+    }
+
+    // 메시지 업데이트 될 때마다 스크롤 밑으로 내려감
+    function scrollChatToBottom() {
+        let chatContainer = document.getElementById('chatting');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    $(function () {
+        $("#chat-form").on('submit', function (e) {
+            e.preventDefault();
+            sendChat();
+        });
+        $("#connect").click(function() { connect(); });
+        $("#disconnect").click(function() { disconnect(); });
+    });
+</script>
+</body>
+</html>
