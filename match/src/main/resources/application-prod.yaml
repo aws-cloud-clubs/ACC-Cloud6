@@ -15,10 +15,12 @@ spring:
       database: ${REDIS_DATABASE}
       username: ${REDIS_USERNAME}
       password: ${REDIS_PASSWORD}
+  config:
+    import: optional:file:prod.env[.properties]
 cloud6:
   match:
     size: ${MATCH_SIZE}
-    timeout: ${MATCH_TIMEOUT} 
+    timeout: ${MATCH_TIMEOUT}
     interval: ${MATCH_INTERVAL}
   jwt:
     secret: ${JWT_SECRET}
