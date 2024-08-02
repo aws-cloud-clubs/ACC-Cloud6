@@ -1,4 +1,6 @@
 import time
+import json
+from datetime import datetime
 from locust import User, task, between
 
 from src.common.stomp import StompClient
@@ -25,7 +27,7 @@ class ChatLoadTestUser(User):
         for i in range(self.vuser):
             self.__stomp_clients.append(StompClient(self.host, self.port, self.endpoint))
             self.__stomp_clients[i].connect()
-            self.__stomp_clients[i].subscribe(f"/topic/chat/{self.room_id}")
+            self.__stomp_clients[i].subscribe(f"/topic/chat/{self.room_id}", f"user{i}")
 
     def on_stop(self):
         for i in range(self.vuser):
@@ -35,7 +37,14 @@ class ChatLoadTestUser(User):
     def send_receive_hello(self):
         start_time = time.time()
 
-        self.__stomp_clients[0].send("/topic/chat", "Hello, world!")
+        payload = json.dumps({
+            "chatRoomId": self.room_id,
+            "type": "MESSAGE",
+            "createdBy": "user0",
+            "text": "Hello, world!",
+            "createdAt": datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        })
+        self.__stomp_clients[0].send("/topic/chat", payload)
 
         for i in range(1, self.vuser):
             msg = self.__stomp_clients[i].receive()
