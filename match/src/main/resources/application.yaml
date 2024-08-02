@@ -10,7 +10,7 @@ spring:
       ddl-auto: create-drop
   data:
     redis:
-      host: cloud6-redis-ro.csphhv.ng.0001.apn2.cache.amazonaws.com
+      host: localhost
       port: 6379
       database: 0
       username: 
