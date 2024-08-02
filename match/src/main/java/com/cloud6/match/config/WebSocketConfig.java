@@ -1,4 +1,4 @@
-package com.cloud6.match.match.config;
+package com.cloud6.match.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,9 +7,9 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import com.cloud6.match.MatchHandler;
-import com.cloud6.match.MatchQueueService;
-import com.cloud6.match.TokenPublishProtocolService;
+import com.cloud6.match.match.MatchHandler;
+import com.cloud6.match.match.MatchQueueService;
+import com.cloud6.match.match.TokenPublishProtocolService;
 
 import lombok.RequiredArgsConstructor;
 

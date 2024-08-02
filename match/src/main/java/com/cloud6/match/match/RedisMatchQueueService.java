@@ -2,10 +2,12 @@ package com.cloud6.match.match;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -19,14 +21,20 @@ public class RedisMatchQueueService implements MatchQueueService {
     private final StringRedisTemplate template;
     private final RedisConnectionFactory connectionFactory;
 
+    private final String MATCH_INDEX_ID = "match:index";
+
     @Override
     public void enqueueMatchEntry(String queueId, MatchEntry entry) {
-        template.opsForList().leftPush(getWaitingQueueId(queueId), entry.toString());
+        String key = getWaitingQueueId(queueId);
+        template.opsForList().leftPush(key, entry.toString());
+        updateIndex(queueId);
     }
 
     @Override
     public void cancelMatchEntry(String queueId, MatchEntry entry) {
-        template.opsForSet().add(getCanceledQueueId(queueId), entry.toString());
+        String key = getWaitingQueueId(queueId);
+        template.opsForSet().add(key, entry.toString());
+        updateIndex(queueId);
     }
 
     @Override
@@ -51,6 +59,8 @@ public class RedisMatchQueueService implements MatchQueueService {
         } catch (Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();
+        } finally {
+            updateIndex(queueId);
         }
 
         return result;
@@ -109,6 +119,15 @@ public class RedisMatchQueueService implements MatchQueueService {
             );
         }
     }
+
+    @Override
+    public List<MatchIndexEntry> getQueueIds(long startIndex, long size) {
+        long startPoint = (startIndex - 1) * size;
+        Set<TypedTuple<String>> result = template.opsForZSet().reverseRangeWithScores(MATCH_INDEX_ID, startPoint, startPoint + size);
+        return result.stream()
+            .map((tuple) -> new MatchIndexEntry(tuple.getValue(), (long)Math.floor(tuple.getScore())))
+            .toList();
+    }
     
     private String getWaitingQueueId(String queueId) {
         return "waiting:" + queueId;
@@ -120,6 +139,11 @@ public class RedisMatchQueueService implements MatchQueueService {
 
     private String getChannelId(String queueId) {
         return "ch:" + queueId;
+    }
+
+    private void updateIndex(String queueId) {
+        template.opsForZSet().add(MATCH_INDEX_ID, queueId, waitingSize(queueId));
+
     }
 }
 
