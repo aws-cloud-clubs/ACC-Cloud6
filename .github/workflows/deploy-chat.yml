@@ -77,7 +77,8 @@ jobs:
         filters: |
           chat:
             - 'chat/**'
-            - '.github/workflows/**'
+            - '.github/workflows/deploy-chat.yml'
+            - '.aws/ecs-task-definition-chat.json'
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4

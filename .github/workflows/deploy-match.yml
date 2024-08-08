@@ -76,8 +76,8 @@ jobs:
         filters: |
           match:
             - 'match/**'
-            - '.github/workflows/**'
-            - '.aws/**'
+            - '.github/workflows/deploy-match.yml'
+            - '.aws/ecs-task-definition-match.json'
             
     - name: Set up JDK 21
       uses: actions/setup-java@v4
