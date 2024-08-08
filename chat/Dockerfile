@@ -39,8 +39,12 @@ COPY build/libs/*.jar app.jar
 COPY agent/opentelemetry-javaagent.jar opentelemetry-javaagent.jar
 EXPOSE 8080
 
+ENV OTEL_EXPORTER_OTLP_ENDPOINT=""
+
 #ENTRYPOINT ["java", "-jar", "app.jar"]
-ENTRYPOINT ["java", "-javaagent:opentelemetry-javaagent.jar", \
-            "-Dotel.exporter.otlp.endpoint=$OTEL_EXPORTER_OTLP_ENDPOINT", \
-            "-Dotel.service.name=cloud6-chat", \
-            "-jar", "app.jar"]
+ENTRYPOINT java -javaagent:opentelemetry-javaagent.jar \
+           -Dotel.propagators=jaeger \
+           -Dotel.exporter.otlp.protocol=grpc \
+           -Dotel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT} \
+           -Dotel.service.name=cloud6-chat \
+           -jar app.jar
