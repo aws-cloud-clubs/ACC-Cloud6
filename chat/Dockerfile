@@ -36,6 +36,11 @@ RUN echo Asia/Seoul > /etc/timezone
 WORKDIR /app
 
 COPY build/libs/*.jar app.jar
+COPY agent/opentelemetry-javaagent.jar opentelemetry-javaagent.jar
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+#ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-javaagent:opentelemetry-javaagent.jar", \
+            "-Dotel.exporter.otlp.endpoint=$OTEL_EXPORTER_OTLP_ENDPOINT", \
+            "-Dotel.service.name=chat", \
+            "-jar", "app.jar"]
