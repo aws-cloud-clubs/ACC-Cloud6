@@ -92,11 +92,16 @@ jobs:
 
     - name: Build with Gradle
       run: |
+        export JAEGER_HOST=$JAEGER_HOST
+        export JAEGER_PORT=$JAEGER_PORT
         touch chat/src/main/resources/application-db.properties
         echo "${{ secrets.CHAT_ENV_VARS_DB }}" >> chat/src/main/resources/application-db.properties
         cd ./chat
         chmod +x ./gradlew
         ./gradlew build --warning-mode all --scan
+      env:
+        JAEGER_HOST: ${{ vars.JAEGER_HOST }}
+        JAEGER_PORT: ${{ vars.JAEGER_PORT }}
 
     - name: Configure AWS credentials
       if: steps.filter.outputs.chat == 'true'
