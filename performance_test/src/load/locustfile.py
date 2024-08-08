@@ -11,9 +11,8 @@ global_room_id = AtomicCounter()
 
 
 class ChatLoadTestUser(User):
-    host = "localhost"
-    port = 8080
-    endpoint = "chat"
+    host = "cloud6-lb-997344652.ap-northeast-2.elb.amazonaws.com"
+    endpoint = "ws"
 
     vuser = 6
 
@@ -25,9 +24,9 @@ class ChatLoadTestUser(User):
 
         self.__stomp_clients: list[StompClient] = []
         for i in range(self.vuser):
-            self.__stomp_clients.append(StompClient(self.host, self.port, self.endpoint))
+            self.__stomp_clients.append(StompClient(self.host, self.endpoint))
             self.__stomp_clients[i].connect()
-            self.__stomp_clients[i].subscribe(f"/topic/chat/{self.room_id}", f"user{i}")
+            self.__stomp_clients[i].subscribe(f"/topic/{self.room_id}", f"user{i}")
 
     def on_stop(self):
         for i in range(self.vuser):
@@ -35,19 +34,25 @@ class ChatLoadTestUser(User):
 
     @task
     def send_receive_hello(self):
-        start_time = time.time()
+        try:
+            start_time = time.time()
 
-        payload = json.dumps({
-            "chatRoomId": self.room_id,
-            "type": "MESSAGE",
-            "createdBy": "user0",
-            "text": "Hello, world!",
-            "createdAt": datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-        })
-        self.__stomp_clients[0].send("/topic/chat", payload)
+            payload = json.dumps({
+                "roomId": self.room_id,
+                "memberId": f"00000",
+                "type": "MESSAGE",
+                "createdBy": "user0",
+                "comment": "Hello, world!",
+                "createdAt": datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+            })
+            self.__stomp_clients[0].send(f"/app/chat/{self.room_id}", payload)
 
-        for i in range(1, self.vuser):
-            msg = self.__stomp_clients[i].receive()
+            for i in range(self.vuser):
+                msg = self.__stomp_clients[i].receive()
 
-        total_time = int((time.time() - start_time) * 1000)
-        self.environment.events.request.fire(request_type="STOMP", name="send_receive_hello", response_time=total_time, response_length=len(msg))
+            total_time = int((time.time() - start_time) * 1000)
+            
+        except Exception as e:
+            self.environment.events.request.fire(request_type="STOMP", name="send_receive_hello", response_time=total_time, response_length=0, exception=e)
+        else:
+            self.environment.events.request.fire(request_type="STOMP", name="send_receive_hello", response_time=total_time, response_length=len(msg))
