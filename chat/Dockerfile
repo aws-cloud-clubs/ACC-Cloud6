@@ -42,5 +42,5 @@ EXPOSE 8080
 #ENTRYPOINT ["java", "-jar", "app.jar"]
 ENTRYPOINT ["java", "-javaagent:opentelemetry-javaagent.jar", \
             "-Dotel.exporter.otlp.endpoint=$OTEL_EXPORTER_OTLP_ENDPOINT", \
-            "-Dotel.service.name=chat", \
+            "-Dotel.service.name=cloud6-chat", \
             "-jar", "app.jar"]
